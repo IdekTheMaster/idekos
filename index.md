@@ -2,9 +2,9 @@
 
 Idekos is a free, open source, linux distribution.
 
-We are an Arch based distro with many quality of life features, like a built in aur helper and more. We package the [KDE Plasma]https://kde.org/plasma-desktop/,
-[Gnome]https://www.gnome.org/, and [XFCE]https://www.xfce.org/ desktops
-We also have some standalone window managers like [Awesome]https://awesomewm.org/, [Bspwm]https://github.com/baskerville/bspwm, and [Openbox]http://openbox.org/wiki/Main_Page.
+We are an Arch based distro with many quality of life features, like a built in aur helper and more. We package the [KDE Plasma](https://kde.org/plasma-desktop/),
+[Gnome](https://www.gnome.org/), and [XFCE](https://www.xfce.org/) desktops
+We also have some standalone window managers like [Awesome](https://awesomewm.org/), [Bspwm](https://github.com/baskerville/bspwm), and [Openbox](http://openbox.org/wiki/Main_Page).
 
 ### Markdown
 
