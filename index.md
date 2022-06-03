@@ -1,8 +1,10 @@
-## Welcome to GitHub Pages
+## Welcome to Idekos
 
-You can use the [editor on GitHub](https://github.com/IdekTheMaster/idekos.github.io/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+Idekos is a free, open source, linux distribution.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+We are an Arch based distro with many quality of life features, like a built in aur helper and more. We package the [KDE Plasma]https://kde.org/plasma-desktop/,
+[Gnome]https://www.gnome.org/, and [XFCE]https://www.xfce.org/ desktops
+We also have some standalone window managers like [Awesome]https://awesomewm.org/, [Bspwm]https://github.com/baskerville/bspwm, and [Openbox]http://openbox.org/wiki/Main_Page.
 
 ### Markdown
 
