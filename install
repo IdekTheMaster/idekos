@@ -1,0 +1,111 @@
+#!/bin/sh
+echo Hello, welcome to the installer for Idekos
+
+sleep 3s
+
+echo This script is used to install Idekos onto your computer, then launch a script to let you customise it to your liking.
+
+sleep 5s
+
+echo "First let's check if your system is using UEFI"
+
+sleep 2s
+
+# Check if system is booted in UEFI mode.
+if [ ! -d "/sys/firmware/efi/efivars" ] 
+then
+    # If not, then exit installer.
+    echo "[Error!] System is not booted in UEFI mode. Please boot in UEFI mode & try again."
+    exit 9999
+fi
+
+echo "Now, let's see how much ram you have"
+
+# Figure out how much RAM the system has an set a variable
+# ramTotal=$(grep MemTotal /proc/meminfo | awk '{print $2 / 1024 / 1024}')
+ramTotal=$(free -h | awk '/^Mem:/{print $2}'| awk -FG {'print$1'})
+
+# Update system clock.
+timedatectl set-ntp true
+
+# Detect and list the drives.
+lsblk -f
+
+# Choice the drive to use :
+# 1. 
+echo "----------"
+echo ""
+echo "Which drive do we want to use for this installation?"
+read driveName
+
+echo "Alright, now lets format your drive WARNING THIS WILL DELETE EVERYTHING ON THAT DRIVE ctrl+c NOW IF YOU DON'T WANT THAT TO HAPPEN"
+
+sleep 10s
+
+(
+echo g       # Create new GPT partition table
+echo n       # Create new partition (for EFI).
+echo         # Set default partition number.
+echo         # Set default first sector.
+echo +512M   # Set +512M as last sector.
+echo n       # Create new partition (for root).
+echo         # Set default partition number.
+echo         # Set default first sector.
+echo n       # Create new partition (for swap).
+echo         # Set default partition number.
+echo         # Set default first sector.
+echo         # Set default last sector (rest of the disk).
+echo t       # Change partition type.
+echo 1       # Pick first partition.
+echo 1       # Change first partition to EFI system.
+echo w       # write changes. 
+) | sudo fdisk $driveName -w always -W always
+
+lsblk -f
+
+# Format the partitions :
+echo "----------"
+echo ""
+echo "Which is the EFI partition?"
+read efiName
+
+echo ""
+echo "Which is the root partition?"
+read rootName
+
+# Create EFI partition
+sudo mkfs.fat -F32 -n EFI $efiName    
+
+# Create Root partition
+
+sudo mkfs.ext4 $rootName
+
+echo "Great, now lets mount your partitions"
+
+sleep 1s 
+
+sudo mount $rootName /mnt
+
+sudo mkdir /mnt/boot
+
+sudo mount $efiName /mnt/boot
+
+echo "Great, now lets install some packages then we can get you on to the customization process"
+
+sleep 1s 
+
+echo "What kernel would you like to use? (linux, linux-zen, linux-lts)"
+
+read kernel
+
+echo "What text editor would you like? (Micro, Nano, Vim)"
+
+read editor
+
+pacstrap /mnt base base-devel $kernel $editor linux-headers linux-firmware man grub zsh
+
+echo "Great, now that that's done we're gonna boot you into the customization script and chroot you into your new system."
+
+genfstab -U /mnt >> /mnt/etc/fstab
+
+arch-chroot /mnt sh setup.sh
