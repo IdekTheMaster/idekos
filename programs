@@ -1,0 +1,73 @@
+#!/bin/sh
+
+# Install must have packages.
+pacman -S git fish networkmanager iwd pkgconf restic xdg-user-dirs fakeroot kitty picom --noconfirm
+xdg-user-dirs-update
+
+echo ""
+echo "What is your username?"
+read $userName
+
+# Change shell to fish for the new user
+chsh --shell /usr/bin/zsh $userName
+
+# Install development packages.
+pacman -S neofetch rust tree rygel make openssh --noconfirm
+
+git clone https://aur.archlinux.org/yay-bin.git
+cd yay-bin
+makepkg -si
+
+echo "1) Gnome"
+echo "2) Plasma"
+echo "3) Xfce"
+echo "Standalone wms not implemented yet"
+
+echo -n "What desktop do you want?: "; read $desktop
+
+case "$desktop" in
+
+   1) 
+   pacman -S gnome --no-confirm
+   pacman -S gdm --no-confirm
+   systemctl enable gdm
+   ;;
+   2) 
+   pacman -S plasma plasma-desktop plasma-meta plasma-wayland-session sddm --noconfirm
+   pacman -S packagekit-qt5 kde-system-meta kde-utilities-meta --noconfirm
+   systemctl enable sddm
+   ;;
+   3) 
+   pacman -S xfce4 xfce4-goodies
+   pacman -S lightdm lightdm-gtk-greeter
+   systemctl enable lightdm-gtk-greeter
+   ;;   
+   0)
+   exit
+   ;;
+esac
+
+# Install additional fonts
+pacman -S ttf-indic-otf noto-fonts-cjk noto-fonts-emoji noto-fonts --noconfirm
+
+# Install basic packages.
+pacman -S unzip man-db tree --noconfirm
+
+# Install media packages.
+pacman -S obs-studio inkscape --noconfirm
+
+# Install Mozilla packages.
+pacman -S firefox thunderbird --noconfirm
+
+systemctl enable NetworkManager
+systemctl enable iwd
+
+su $userName
+
+yay -S --noconfirm zsh-theme-powerlevel10k-git
+
+echo 'source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme' >>~/.zshrc
+
+p10k configure
+
+reboot

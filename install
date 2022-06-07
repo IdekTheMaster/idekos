@@ -102,10 +102,16 @@ echo "What text editor would you like? (Micro, Nano, Vim)"
 
 read editor
 
-pacstrap /mnt base base-devel $kernel $editor linux-headers linux-firmware man grub zsh
+pacstrap /mnt base base-devel $kernel $editor linux-headers linux-firmware man grub zsh git
 
 echo "Great, now that that's done we're gonna boot you into the customization script and chroot you into your new system."
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
 arch-chroot /mnt sh setup.sh
+
+git clone https://github.com/IdekTheMaster/idekos/blob/gh-pages/configure
+
+chmod +x configure
+
+./configure

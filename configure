@@ -1,0 +1,95 @@
+#!/bin/sh
+timedatectl set-ntp true
+
+echo "What is your timezone? (In the format America/New_York)"
+read timezone
+
+timedatectl set-timezone $timezone
+ln -sf /usr/share/zoneinfo/$timezone /etc/localtime
+hwclock --systohc
+
+echo "What locale do you need?"
+read locale
+
+    sed -i 's/#$locale/$locale/' /etc/locale.gen
+    # b. Generate locale.
+    locale-gen
+    # c. Set system locale. (creates locale.conf)
+    localectl set-locale $locale
+
+echo 'export $locale' | tee -a /etc/profile
+
+echo "Specify hostname. This will be used to identify your machine on a network."
+read hostName; echo $hostName > /etc/hostname
+
+echo -e 127.0.0.1'\t'localhost'\n'::1'\t\t'localhost'\n'127.0.1.1'\t'$hostName >> /etc/hosts
+
+echo "Specify username. This will be used to identify your account on this machine."
+read userName;
+useradd -m -G wheel -s /bin/zsh $userName
+
+echo "Specify password for regular user : $userName."; passwd $userName
+
+echo "$userName ALL=(ALL:ALL) ALL" | sudo EDITOR='tee -a' visudo
+
+echo "Specify root password. This will be used to authorize root commands."
+passwd
+
+echo "Do you want Hibernation?"
+echo "1) Yes"
+echo "2) No"
+echo -n "Enter choice: "; read hibState
+
+case "$hibState" in
+    1)
+    sed -i 's/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block keyboard lvm2 encrypt filesystems fsck resume btrfs)/g' /etc/mkinitcpio.conf
+    ;;
+    2) 
+    sed -i 's/HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)/HOOKS=(base udev autodetect modconf block keyboard encrypt lvm2 filesystems fsck btrfs)/g' /etc/mkinitcpio.conf
+    ;;
+ esac
+
+lsblk -f 
+
+echo "-------"
+
+echo "Which is the root partition?"
+read rootName
+
+echo "Which is the boot partition?"
+read bootName
+
+
+mkinitcpio -p linux
+
+pacman -S efibootmgr grub --noconfirm
+
+grub-install --target=x86_64-efi --efi-directory=/mnt/boot --bootloader-id=GRUB
+
+grub-mkconfig -o /boot/grub/grub.cfg
+
+echo ""
+echo "1) AMD"
+echo "2) Intel"
+echo -n "Enter CPU: "; read $cpuName
+
+case "$cpuName" in
+   1) 
+   pacman -S amd-ucode --noconfirm
+   ;;
+   2) 
+   pacman -S intel-ucode --noconfirm
+   ;;
+   0)
+   exit
+   ;;
+esac
+
+sed -i 's/Arch Linux/Idekos/g' /etc/os-release
+sed -i 's/arch/idekos/g' /etc/os-release
+
+git clone https://github.com/IdekTheMaster/idekos/blob/gh-pages/programs
+
+chmod +x programs
+
+./programs
