@@ -110,7 +110,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 arch-chroot /mnt sh setup.sh
 
-git clone https://github.com/IdekTheMaster/idekos/blob/gh-pages/configure
+wget https://github.com/IdekTheMaster/idekos/blob/gh-pages/configure
 
 chmod +x configure
 
